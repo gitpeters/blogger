@@ -5,8 +5,6 @@ const blogController = require('../controllers/controller.blog');
 
 const router = express.Router();
 
-router
-  .route('/upload')
-  .post(cloudinaryService.upload, blogController.uploadImage);
+router.route('/').post(cloudinaryService.upload, blogController.createPost);
 
 module.exports = router;

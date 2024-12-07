@@ -10,7 +10,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await userService.findAllUsers();
+  const users = await userService.getAllUsers();
   res.status(200).json({
     status: 'success',
     result: users.length,
@@ -19,7 +19,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-  const user = await userService.findByUser(req.params.id);
+  const user = await userService.getUser(req.params.id);
   res.status(200).json({
     status: 'success',
     data: { user },

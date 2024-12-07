@@ -8,6 +8,7 @@ class UserRepository extends Repository {
   }
 
   async save(data) {
+    console.log(data);
     try {
       const [result] = await database.query(
         `INSERT INTO ${this.tableName} (author_id, title, content, cover_image, image_public_id, created_at, updated_at)

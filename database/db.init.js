@@ -29,11 +29,12 @@ const createBlogTable = async () => {
         CREATE TABLE IF NOT EXISTS blogger.blogs (
       id INT NOT NULL AUTO_INCREMENT,
       author_id INT NOT NULL,
-      content VARCHAR(45) NULL,
-      cover_image VARCHAR(45) NULL,
+      content MEDIUMTEXT NULL,
+      cover_image VARCHAR(200) NULL,
       title VARCHAR(45) NULL,
       created_at DATETIME NOT NULL,
       updated_at DATETIME NOT NULL,
+      image_public_id VARCHAR(100),
       PRIMARY KEY (id),
       KEY FK_BLOG_AUTHOR (author_id),
       CONSTRAINT FK_BLOG_AUTHOR FOREIGN KEY (author_id) REFERENCES users(id))
@@ -50,8 +51,7 @@ const updateBlogTable = async () => {
     await database.query(
       `
       ALTER TABLE blogger.blogs
-      MODIFY COLUMN content MEDIUMTEXT,
-      ADD COLUMN image_public_id VARCHAR(255);
+      MODIFY COLUMN cover_image VARCHAR(255);
       `
     );
     console.log('Blog table successfully updated');

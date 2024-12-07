@@ -6,6 +6,7 @@ const UserRepository = require('../database/database.user.repository');
 class UserService {
   constructor() {}
   async createUser(data) {
+    this.validateUserRequest(data);
     const userModel = new User(
       undefined,
       data.firstName,
@@ -15,11 +16,11 @@ class UserService {
     return await UserRepository.save(userModel);
   }
 
-  async findAllUsers() {
+  async getAllUsers() {
     return await UserRepository.findAll();
   }
 
-  async findByUser(id) {
+  async getUser(id) {
     const user = await UserRepository.findById(id);
     if (!user) {
       throw new AppException('No user record found', 404);
@@ -47,6 +48,17 @@ class UserService {
       createdAt: record.created_at,
       updatedAt: dateFormatter(Date.now()),
     };
+  }
+
+  validateUserRequest(data) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!data.firstName)
+      throw new AppException('user first name is required', 404);
+    if (!data.lastName)
+      throw new AppException('user last name is required', 404);
+    if (!data.email) throw new AppException('user email is required', 404);
+    if (!emailRegex.test(data.email))
+      throw new AppException('Invalid email address provided', 404);
   }
 }
 

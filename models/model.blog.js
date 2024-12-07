@@ -1,14 +1,15 @@
 const dateFormatter = require('../utils/date.formatter');
 
 class Blog {
-  constructor(id, title, content, coverImage, authorId) {
+  constructor(id, authorId, title, content, coverImage, imagePublicId) {
     this.id = id;
     this.title = title;
     this.content = content;
-    this.coverImage = coverImage;
     this.authorId = authorId;
-    this.createdAt = dateFormatter(Date.now);
-    this.updatedAt = dateFormatter(Date.now);
+    this.coverImage = coverImage;
+    this.imagePublicId = imagePublicId;
+    this.createdAt = dateFormatter(Date.now());
+    this.updatedAt = dateFormatter(Date.now());
   }
 }
 
