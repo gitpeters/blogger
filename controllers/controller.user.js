@@ -10,7 +10,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await userService.getAllUsers();
+  const users = await userService.getAllUsers(req.query);
   res.status(200).json({
     status: 'success',
     result: users.length,

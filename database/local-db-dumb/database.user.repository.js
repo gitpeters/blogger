@@ -1,6 +1,6 @@
 const Repository = require('./database.repository');
 const database = require('./database.connection');
-const AppException = require('../exceptions/exception.app');
+const AppException = require('../../exceptions/exception.app');
 
 class UserRepository extends Repository {
   constructor() {

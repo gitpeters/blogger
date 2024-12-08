@@ -1,4 +1,4 @@
-const database = require('./database.connection');
+const database = require('./local-db-dumb/database.connection');
 
 // create tables
 
@@ -10,8 +10,8 @@ const createUserTable = async () => {
       first_name VARCHAR(45) NULL,
       last_name VARCHAR(45) NULL,
       email VARCHAR(45) NULL,
-      created_at DATETIME NOT NULL,
-      updated_at DATETIME NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id),
       UNIQUE KEY UK_EMAIL_ADDRESS (email)
       )
@@ -31,9 +31,9 @@ const createBlogTable = async () => {
       author_id INT NOT NULL,
       content MEDIUMTEXT NULL,
       cover_image VARCHAR(200) NULL,
-      title VARCHAR(45) NULL,
-      created_at DATETIME NOT NULL,
-      updated_at DATETIME NOT NULL,
+      title TEXT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       image_public_id VARCHAR(100),
       PRIMARY KEY (id),
       KEY FK_BLOG_AUTHOR (author_id),

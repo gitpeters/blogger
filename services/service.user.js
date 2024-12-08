@@ -1,27 +1,31 @@
 const User = require('../models/model.user');
 const AppException = require('../exceptions/exception.app');
-const dateFormatter = require('../utils/date.formatter');
-const UserRepository = require('../database/database.user.repository');
+const CreateUserRequest = require('../dtos/create.user.request');
+const pagination = require('../utils/pagination');
 
 class UserService {
   constructor() {}
   async createUser(data) {
     this.validateUserRequest(data);
-    const userModel = new User(
-      undefined,
+    const userRequest = new CreateUserRequest(
       data.firstName,
       data.lastName,
       data.email
     );
-    return await UserRepository.save(userModel);
+    return await User.create(userRequest);
   }
 
-  async getAllUsers() {
-    return await UserRepository.findAll();
+  async getAllUsers(query) {
+    const { limit, offset } = pagination.paginate(query);
+    const { count, rows } = await User.findAndCountAll({
+      offset: offset,
+      limit: limit,
+    });
+    return rows;
   }
 
   async getUser(id) {
-    const user = await UserRepository.findById(id);
+    const user = await User.findByPk(id);
     if (!user) {
       throw new AppException('No user record found', 404);
     }
@@ -29,14 +33,11 @@ class UserService {
   }
 
   async updateUser(id, data) {
-    const dbUser = await UserRepository.findById(id);
-    const user = mapUserTo(dbUser[0]);
-    const updatedRecord = { ...user, ...data };
-    return await UserRepository.updateById(id, updatedRecord);
+    return await User.update(data, { where: { id: id } });
   }
 
   async deleteUser(id) {
-    await UserRepository.deleteById(id);
+    await User.destroy({ where: { id: id } });
   }
 
   mapUserTo(record) {

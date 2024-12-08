@@ -1,4 +1,4 @@
-const AppException = require('../exceptions/exception.app');
+const AppException = require('../../exceptions/exception.app');
 const database = require('./database.connection');
 
 class Repository {

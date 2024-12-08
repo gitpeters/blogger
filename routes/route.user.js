@@ -1,8 +1,11 @@
 const express = require('express');
 
 const userController = require('../controllers/controller.user');
+const blogController = require('../controllers/controller.blog');
 
 const router = express.Router();
+
+router.use('/:userId/posts', blogController.getUserPosts);
 
 router
   .route('/')
