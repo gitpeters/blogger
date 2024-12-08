@@ -94,19 +94,6 @@ class BlogService {
     return await cloudinaryService.uploadImageToCloudinary(fileBuffer);
   }
 
-  _mapPostTo(data, imageUrl, imagePublicId) {
-    return {
-      id: data.id,
-      title: data.title,
-      content: data.content,
-      authorId: data.author_id,
-      coverImage: !imageUrl ? data.cover_image : imageUrl,
-      imagePublicId: !imagePublicId ? data.image_public_id : imagePublicId,
-      createdAt: data.created_at,
-      updatedAt: dateFormatter(Date.now()),
-    };
-  }
-
   _validateBlogRequest(data) {
     if (!data.body.title) throw new AppException('Blog title is required', 404);
     if (!data.body.content)

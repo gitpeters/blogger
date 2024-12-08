@@ -6,7 +6,7 @@ const pagination = require('../utils/pagination');
 class UserService {
   constructor() {}
   async createUser(data) {
-    this.validateUserRequest(data);
+    this._validateUserRequest(data);
     const userRequest = new CreateUserRequest(
       data.firstName,
       data.lastName,
@@ -40,18 +40,7 @@ class UserService {
     await User.destroy({ where: { id: id } });
   }
 
-  mapUserTo(record) {
-    return {
-      id: record.id,
-      firstName: record.first_name,
-      lastName: record.last_name,
-      email: record.email,
-      createdAt: record.created_at,
-      updatedAt: dateFormatter(Date.now()),
-    };
-  }
-
-  validateUserRequest(data) {
+  _validateUserRequest(data) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!data.firstName)
       throw new AppException('user first name is required', 404);
