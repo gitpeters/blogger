@@ -2,17 +2,32 @@ const User = require('../models/model.user');
 const AppException = require('../exceptions/exception.app');
 const CreateUserRequest = require('../dtos/create.user.request');
 const pagination = require('../utils/pagination');
+const AuthService = require('./service.auth');
+const UserResponse = require('../dtos/user.response');
+const { Op } = require('sequelize');
+
+const {
+  emailRegex,
+  passwordRegex,
+  phoneNumberRegex,
+} = require('../utils/system.regex');
 
 class UserService {
   constructor() {}
-  async createUser(data) {
-    this._validateUserRequest(data);
+
+  async createUser(data, res) {
     const userRequest = new CreateUserRequest(
       data.firstName,
       data.lastName,
-      data.email
+      data.email,
+      data.phoneNumber,
+      data.password
     );
-    return await User.create(userRequest);
+    await this._validateUserRequest(userRequest);
+    const user = await User.create(userRequest);
+    const accessToken = AuthService.generateAccessToken(user);
+    AuthService.setCookie(res, accessToken, 'accessToken');
+    return this._mapUserToUserResponse(user);
   }
 
   async getAllUsers(query) {
@@ -40,15 +55,68 @@ class UserService {
     await User.destroy({ where: { id: id } });
   }
 
-  _validateUserRequest(data) {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  async findUserByEmailOrUsername(username) {
+    console.log(username);
+    return await User.findOne({
+      where: {
+        [Op.or]: [{ email: username }, { username: username }],
+      },
+    });
+  }
+
+  _mapUserToUserResponse(user, opt = {}) {
+    return new UserResponse(
+      user.id,
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.phone,
+      user.role,
+      user.username,
+      opt
+    );
+  }
+
+  async _validateUserRequest(data) {
     if (!data.firstName)
-      throw new AppException('user first name is required', 404);
+      throw new AppException('User first name is required', 404);
+
     if (!data.lastName)
-      throw new AppException('user last name is required', 404);
-    if (!data.email) throw new AppException('user email is required', 404);
+      throw new AppException('User last name is required', 404);
+
+    if (!data.email) throw new AppException('User email is required', 404);
+
     if (!emailRegex.test(data.email))
       throw new AppException('Invalid email address provided', 404);
+
+    if (!data.phone)
+      throw new AppException('User phone number is required', 404);
+
+    if (!phoneNumberRegex.test(data.phone))
+      throw new AppException('Invalid phone number provided', 404);
+
+    if (!data.password)
+      throw new AppException('User password is required', 404);
+
+    if (!passwordRegex.test(data.password)) {
+      throw new AppException(
+        'Please provide a stronger password. The password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character (e.g., @$!%*?&).',
+        404
+      );
+    }
+
+    if (await User.findOne({ where: { email: data.email } })) {
+      throw new AppException(
+        'User email already taken. Please provide another email',
+        404
+      );
+    }
+    if (await User.findOne({ where: { phone: data.phone } })) {
+      throw new AppException(
+        'User phone number already taken. Please provide another phone number',
+        404
+      );
+    }
   }
 }
 
