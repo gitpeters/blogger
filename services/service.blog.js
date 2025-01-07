@@ -1,23 +1,27 @@
 const AppException = require('../exceptions/exception.app');
 const Blog = require('../models/model.blog');
-const UserService = require('./service.user');
 const cloudinaryService = require('./service.cloudinary');
 const User = require('../models/model.user');
+const Category = require('../models/model.category');
 const pagination = require('../utils/pagination');
 const { Op } = require('sequelize');
 
 class BlogService {
   async createPost(data) {
     this._validateBlogRequest(data);
-    const user = await UserService.getUser(data.body.authorId);
     const { url, publicId } = await this._uploadImage(data.file);
 
     const post = {
       ...data.body,
       coverImage: url,
       imagePublicId: publicId,
-      userId: user.id,
+      userId: data.user.id,
     };
+    if (data.categoryId) {
+      const category = await Category.findByPk(data.categoryId);
+      if (!category)
+        throw new AppException('Invalid category id provided.', 403);
+    }
     return await Blog.create(post);
   }
 
@@ -45,10 +49,16 @@ class BlogService {
           }
         : {},
       include: [
-        { model: User, attributes: ['firstName', 'lastName', 'email'] },
+        { model: User, attributes: ['firstName', 'lastName'] },
+        {
+          model: Category,
+          attributes: ['name'],
+          where: query.filter ? { name: query.filter } : {},
+        },
       ],
       offset: offset,
       limit: limit,
+      order: [['createdAt', 'DESC']],
     });
     return rows;
   }
@@ -56,7 +66,8 @@ class BlogService {
   async getPost(id) {
     const post = await Blog.findByPk(id, {
       include: [
-        { model: User, attributes: ['firstName', 'lastName', 'email'] },
+        { model: User, attributes: ['firstName', 'lastName'] },
+        { model: Category, attributes: ['name'] },
       ],
     });
     if (!post) throw new AppException('No post record found', 404);
@@ -98,8 +109,6 @@ class BlogService {
     if (!data.body.title) throw new AppException('Blog title is required', 404);
     if (!data.body.content)
       throw new AppException('Blog content is required', 404);
-    if (!data.body.authorId)
-      throw new AppException('Blog author is required', 404);
     if (!data.file)
       throw new AppException('No file uploaded. Kindly upload image file', 404);
   }

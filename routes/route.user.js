@@ -15,12 +15,12 @@ router
     AuthService.restrictTo('ADMIN'),
     userController.getAllUsers
   )
-  .post(userController.createUser);
+  .post(userController.createUser)
+  .patch(AuthService.protect, userController.updateUser);
 
 router
   .route('/:id')
   .get(userController.getUser)
-  .patch(userController.updateUser)
   .delete(
     AuthService.protect,
     AuthService.restrictTo('ADMIN'),

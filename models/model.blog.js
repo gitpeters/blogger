@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/orm/sequelize');
 const slugify = require('slugify');
+const Category = require('./model.category');
 
 const Blog = sequelize.define(
   'Blog',
@@ -32,20 +33,13 @@ const Blog = sequelize.define(
   }
 );
 
-const Category = sequelize.define('Category', {
-  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  name: { type: DataTypes.STRING },
-});
-
-Blog.hasMany(Category, {
-  foreignKey: 'postId',
-  onDelete: 'CASCADE',
+Blog.belongsTo(Category, {
+  foreignKey: 'categoryId',
   onUpdate: 'CASCADE',
 });
 
-Category.belongsTo(Blog, {
-  foreignKey: 'postId',
-  onDelete: 'CASCADE',
+Category.hasMany(Blog, {
+  foreignKey: 'categoryId',
   onUpdate: 'CASCADE',
 });
 module.exports = Blog;

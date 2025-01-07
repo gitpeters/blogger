@@ -1,6 +1,7 @@
 const User = require('../models/model.user');
 const AppException = require('../exceptions/exception.app');
 const CreateUserRequest = require('../dtos/create.user.request');
+const UpdateUserRequest = require('../dtos/update.user.request');
 const pagination = require('../utils/pagination');
 const AuthService = require('./service.auth');
 const UserResponse = require('../dtos/user.response');
@@ -36,7 +37,9 @@ class UserService {
       offset: offset,
       limit: limit,
     });
-    return rows;
+    return rows
+      .filter(user => user.role !== 'ADMIN')
+      .map(user => this._mapUserToUserResponse(user));
   }
 
   async getUser(id) {
@@ -44,11 +47,30 @@ class UserService {
     if (!user) {
       throw new AppException('No user record found', 404);
     }
-    return user;
+    return this._mapUserToUserResponse(user);
   }
 
   async updateUser(id, data) {
-    return await User.update(data, { where: { id: id } });
+    const updateData = new UpdateUserRequest(
+      data.firstName,
+      data.lastName,
+      data.phoneNumber
+    );
+    if (updateData.phone) {
+      if (!phoneNumberRegex.test(updateData.phone))
+        throw new AppException('Invalid phone number provided', 404);
+
+      if (await User.findOne({ where: { phone: updateData.phone } })) {
+        throw new AppException(
+          'User phone number already taken. Please provide another phone number',
+          404
+        );
+      }
+    }
+
+    await User.update(updateData, { where: { id: id } });
+    const updatedUser = await User.findByPk(id);
+    return this._mapUserToUserResponse(updatedUser);
   }
 
   async deleteUser(id) {
@@ -56,7 +78,6 @@ class UserService {
   }
 
   async findUserByEmailOrUsername(username) {
-    console.log(username);
     return await User.findOne({
       where: {
         [Op.or]: [{ email: username }, { username: username }],

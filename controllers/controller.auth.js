@@ -8,6 +8,7 @@ class AuthController {
       req.body.username,
       req.body.password
     );
+    AuthService.setCookie(res, response.accessToken, 'accessToken');
     res.status(200).json({
       status: 'success',
       data: {
