@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/orm/sequelize');
 const slugify = require('slugify');
-const Category = require('./model.category');
+const { Category, Comment } = require('./model.category');
 
 const Blog = sequelize.define(
   'Blog',
@@ -12,6 +12,7 @@ const Blog = sequelize.define(
     coverImage: { type: DataTypes.STRING, allowNull: true },
     imagePublicId: { type: DataTypes.STRING, allowNull: true },
     slug: { type: DataTypes.STRING },
+    likes: { type: DataTypes.INTEGER },
   },
   {
     timestamps: true,
@@ -41,5 +42,14 @@ Blog.belongsTo(Category, {
 Category.hasMany(Blog, {
   foreignKey: 'categoryId',
   onUpdate: 'CASCADE',
+});
+
+Blog.hasMany(Comment, {
+  foreignKey: 'postId',
+  onDelete: 'CASCADE',
+});
+
+Comment.belongsTo(Blog, {
+  foreignKey: 'postId',
 });
 module.exports = Blog;

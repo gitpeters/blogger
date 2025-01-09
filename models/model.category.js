@@ -6,4 +6,10 @@ const Category = sequelize.define('Category', {
   name: { type: DataTypes.STRING },
 });
 
-module.exports = Category;
+const Comment = sequelize.define('Comment', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  content: { type: DataTypes.TEXT('long') },
+  replies: { type: DataTypes.JSON, allowNull: true, defaultValue: [] },
+});
+
+module.exports = { Category, Comment };

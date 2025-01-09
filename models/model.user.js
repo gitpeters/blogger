@@ -4,6 +4,7 @@ const Blog = require('./model.blog');
 const bcrypt = require('bcrypt');
 const { cleanPhoneNumber } = require('../utils/system.regex');
 const crypto = require('crypto');
+const { Comment } = require('./model.category');
 
 const User = sequelize.define(
   'User',
@@ -71,6 +72,15 @@ Blog.belongsTo(User, {
   foreignKey: 'userId',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
+});
+
+User.hasMany(Comment, {
+  foreignKey: 'userId',
+  onDelete: 'CASCADE',
+});
+
+Comment.belongsTo(User, {
+  foreignKey: 'userId',
 });
 
 module.exports = User;

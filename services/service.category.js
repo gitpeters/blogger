@@ -1,4 +1,4 @@
-const Category = require('../models/model.category');
+const { Category } = require('../models/model.category');
 const pagination = require('../utils/pagination');
 
 class CategoryService {

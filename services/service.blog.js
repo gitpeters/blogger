@@ -2,7 +2,7 @@ const AppException = require('../exceptions/exception.app');
 const Blog = require('../models/model.blog');
 const cloudinaryService = require('./service.cloudinary');
 const User = require('../models/model.user');
-const Category = require('../models/model.category');
+const { Category } = require('../models/model.category');
 const pagination = require('../utils/pagination');
 const { Op } = require('sequelize');
 
