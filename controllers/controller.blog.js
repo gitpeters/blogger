@@ -57,3 +57,11 @@ exports.getUserPosts = catchAsync(async (req, res, next) => {
     data: { posts },
   });
 });
+
+exports.likePost = catchAsync(async (req, res, nex) => {
+  const post = await blogService.likePost(req.params.id);
+  res.status(200).json({
+    status: 'success',
+    data: { post },
+  });
+});

@@ -1,8 +1,10 @@
+const { Sequelize } = require('sequelize');
+
 const AppException = require('../exceptions/exception.app');
 const Blog = require('../models/model.blog');
 const cloudinaryService = require('./service.cloudinary');
 const User = require('../models/model.user');
-const { Category } = require('../models/model.category');
+const { Category, Comment } = require('../models/model.category');
 const pagination = require('../utils/pagination');
 const { Op } = require('sequelize');
 
@@ -55,6 +57,10 @@ class BlogService {
           attributes: ['name'],
           where: query.filter ? { name: query.filter } : {},
         },
+        {
+          model: Comment,
+          attributes: ['id', 'content', 'replies', 'commentedBy'],
+        },
       ],
       offset: offset,
       limit: limit,
@@ -68,6 +74,7 @@ class BlogService {
       include: [
         { model: User, attributes: ['firstName', 'lastName'] },
         { model: Category, attributes: ['name'] },
+        { model: Comment, attributes: ['content', 'replies'] },
       ],
     });
     if (!post) throw new AppException('No post record found', 404);
@@ -88,6 +95,17 @@ class BlogService {
       imagePublicId: imagePublicId,
     };
     return await Blog.update(update, { where: { id: id } });
+  }
+
+  async likePost(id) {
+    const [post] = await Blog.update(
+      { likes: Sequelize.literal('likes + 1') },
+      { where: { id: id } }
+    );
+    if (!post) {
+      throw new AppException('No post found for this ID', 404);
+    }
+    return await this.getPost(id);
   }
 
   async deletePost(id) {

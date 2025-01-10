@@ -6,6 +6,7 @@ class CommentController {
   async createComment(req, res) {
     req.body.userId = req.user.id;
     req.body.postId = req.params.postId * 1;
+    req.body.commentedBy = req.user.firstName;
     const comment = await CommentService.createComment(req.body);
     res.status(201).json({
       status: 'success',
@@ -43,7 +44,7 @@ class CommentController {
   }
 
   async replyToComment(req, res) {
-    req.body.repliedBy = req.user.email;
+    req.body.repliedBy = req.user.firstName;
     const comment = await CommentService.replyComment(
       req.params.postId,
       req.params.commentId,

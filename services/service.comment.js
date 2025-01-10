@@ -60,24 +60,33 @@ class CommentService {
     if (!reply) {
       throw new AppException('Cannot send empty reply message', 400);
     }
-    const comment = await Comment.findOne(
-      { where: { id: commentId, postId: postId } },
-      {
-        include: [
-          { model: User, attributes: ['firstName', 'lastName'] },
-          { model: Blog, attributes: ['name'] },
-        ],
-      }
-    );
+
+    // Retrieve the existing comment with replies
+    const comment = await Comment.findOne({
+      where: { id: commentId, postId: postId },
+      attributes: ['replies'],
+    });
+
     if (!comment) {
       throw new AppException('No comment found by this ID', 404);
     }
-    if (!comment.replies) {
-      comment.replies = [];
-    }
-    comment.replies.push(reply);
-    await comment.save();
-    return comment;
+
+    // Add the new reply to the existing replies array
+    const updatedReplies = [...comment.replies, reply];
+
+    // Update the comment with the new replies array
+    await Comment.update(
+      { replies: updatedReplies },
+      { where: { id: commentId, postId: postId } }
+    );
+
+    // Fetch the updated comment with the replies and related data
+    const updatedComment = await Comment.findOne({
+      where: { id: commentId },
+      include: [{ model: Blog, attributes: ['title'] }],
+    });
+
+    return updatedComment;
   }
 }
 

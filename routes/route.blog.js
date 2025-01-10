@@ -34,4 +34,6 @@ router
     blogController.deletePost
   );
 
+router.route('/:id/like').post(blogController.likePost);
+
 module.exports = router;

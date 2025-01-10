@@ -9,6 +9,7 @@ const Category = sequelize.define('Category', {
 const Comment = sequelize.define('Comment', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   content: { type: DataTypes.TEXT('long') },
+  commentedBy: { type: DataTypes.STRING, allowNull: false },
   replies: { type: DataTypes.JSON, allowNull: true, defaultValue: [] },
 });
 

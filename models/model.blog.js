@@ -12,7 +12,7 @@ const Blog = sequelize.define(
     coverImage: { type: DataTypes.STRING, allowNull: true },
     imagePublicId: { type: DataTypes.STRING, allowNull: true },
     slug: { type: DataTypes.STRING },
-    likes: { type: DataTypes.INTEGER },
+    likes: { type: DataTypes.INTEGER, defaultValue: 0 },
   },
   {
     timestamps: true,
